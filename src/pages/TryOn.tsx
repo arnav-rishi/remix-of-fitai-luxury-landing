@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { ArrowLeft, Upload, ShoppingCart, RefreshCw, Sparkles, X, AlertCircle } from "lucide-react";
+import { ArrowLeft, Upload, ShoppingCart, RefreshCw, Sparkles, X, AlertCircle, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import garment1 from "@/assets/garment-1.jpg";
@@ -92,6 +92,7 @@ export default function TryOn() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
 
   const handleSelectGarment = (g: Garment) => {
     setSelected(g);
@@ -407,29 +408,54 @@ export default function TryOn() {
                 </div>
 
                 {!photo ? (
-                  <div
-                    onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-                    onDragLeave={() => setDragging(false)}
-                    onDrop={handleDrop}
-                    onClick={() => fileRef.current?.click()}
-                    className={`border-2 border-dashed cursor-pointer flex flex-col items-center justify-center gap-4 py-14 md:py-20 transition-all duration-200 ${
-                      dragging
-                        ? "border-terracotta bg-terracotta/5"
-                        : "border-border hover:border-foreground/30"
-                    }`}
-                    style={{ borderRadius: "2px" }}
-                  >
-                    <Upload size={28} className={dragging ? "text-terracotta" : "text-muted-foreground"} />
-                    <div className="text-center px-4">
-                      <p className="font-body text-sm text-foreground mb-1">
-                        Tap to upload your photo
-                      </p>
-                      <p className="font-body text-xs text-muted-foreground">JPG, PNG up to 10MB</p>
+                  <div className="flex flex-col gap-3">
+                    <div
+                      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                      onDragLeave={() => setDragging(false)}
+                      onDrop={handleDrop}
+                      onClick={() => fileRef.current?.click()}
+                      className={`border-2 border-dashed cursor-pointer flex flex-col items-center justify-center gap-4 py-12 md:py-16 transition-all duration-200 ${
+                        dragging
+                          ? "border-terracotta bg-terracotta/5"
+                          : "border-border hover:border-foreground/30"
+                      }`}
+                      style={{ borderRadius: "2px" }}
+                    >
+                      <Upload size={28} className={dragging ? "text-terracotta" : "text-muted-foreground"} />
+                      <div className="text-center px-4">
+                        <p className="font-body text-sm text-foreground mb-1">
+                          Tap to upload your photo
+                        </p>
+                        <p className="font-body text-xs text-muted-foreground">JPG, PNG up to 10MB</p>
+                      </div>
+                      <input
+                        ref={fileRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+                      />
                     </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="font-body text-[10px] tracking-widest text-muted-foreground uppercase">or</span>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => cameraRef.current?.click()}
+                      className="w-full font-body text-sm py-3.5 md:py-4 border border-border text-foreground hover:border-foreground/60 hover:bg-secondary/40 transition-all duration-200 tracking-wide flex items-center justify-center gap-2"
+                      style={{ borderRadius: "2px" }}
+                    >
+                      <Camera size={16} /> Take a photo
+                    </button>
                     <input
-                      ref={fileRef}
+                      ref={cameraRef}
                       type="file"
                       accept="image/*"
+                      capture="user"
                       className="hidden"
                       onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
                     />

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { ArrowLeft, Upload, ShoppingCart, RefreshCw, Sparkles, X, AlertCircle, Camera } from "lucide-react";
@@ -92,7 +92,106 @@ export default function TryOn() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const cameraRef = useRef<HTMLInputElement>(null);
+
+  // Live camera capture state
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraStarting, setCameraStarting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+
+  const openCamera = async () => {
+    setCameraError(null);
+    setCameraStarting(true);
+    setCameraOpen(true);
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Camera is not supported in this browser.");
+      }
+      // Request camera synchronously inside the click-triggered handler
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 1280 } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      // Attach to video element once it mounts
+      requestAnimationFrame(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(() => {});
+        }
+      });
+    } catch (err: unknown) {
+      const e = err as { name?: string; message?: string };
+      let msg = "Could not access camera.";
+      if (e?.name === "NotAllowedError" || e?.name === "PermissionDeniedError") {
+        msg = "Camera permission denied. Please allow camera access in your browser settings and try again.";
+      } else if (e?.name === "NotFoundError" || e?.name === "OverconstrainedError") {
+        msg = "No camera found on this device.";
+      } else if (e?.name === "NotReadableError") {
+        msg = "Camera is already in use by another application.";
+      } else if (e?.message) {
+        msg = e.message;
+      }
+      setCameraError(msg);
+    } finally {
+      setCameraStarting(false);
+    }
+  };
+
+  const closeCamera = () => {
+    stopCamera();
+    setCameraOpen(false);
+    setCameraError(null);
+  };
+
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth) return;
+    const maxDim = 1024;
+    let width = video.videoWidth;
+    let height = video.videoHeight;
+    if (width > maxDim || height > maxDim) {
+      if (width >= height) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0, width, height);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `selfie-${Date.now()}.jpg`, { type: "image/jpeg" });
+        handleFile(file);
+        closeCamera();
+      },
+      "image/jpeg",
+      0.9,
+    );
+  };
+
+  // Cleanup camera on unmount
+  useEffect(() => {
+    return () => stopCamera();
+  }, [stopCamera]);
 
   const handleSelectGarment = (g: Garment) => {
     setSelected(g);

@@ -653,6 +653,91 @@ export default function TryOn() {
 
         </AnimatePresence>
       </main>
+
+      {/* Camera capture modal */}
+      <AnimatePresence>
+        {cameraOpen && (
+          <motion.div
+            key="camera-modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md flex flex-col"
+          >
+            <div className="flex items-center justify-between px-4 py-3 md:px-8 md:py-4 border-b border-border">
+              <p className="font-body text-xs tracking-widest text-terracotta uppercase">
+                Take your photo
+              </p>
+              <button
+                onClick={closeCamera}
+                className="p-2 hover:bg-secondary transition-colors"
+                style={{ borderRadius: "2px" }}
+                aria-label="Close camera"
+              >
+                <X size={18} className="text-foreground" />
+              </button>
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 gap-4 md:gap-6">
+              <div
+                className="relative w-full max-w-md aspect-[3/4] bg-card border border-border overflow-hidden flex items-center justify-center"
+                style={{ borderRadius: "2px" }}
+              >
+                {cameraError ? (
+                  <div className="flex flex-col items-center gap-3 px-6 text-center">
+                    <AlertCircle size={28} className="text-destructive" />
+                    <p className="font-body text-sm text-foreground">{cameraError}</p>
+                  </div>
+                ) : (
+                  <>
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="w-full h-full object-cover"
+                      style={{ transform: "scaleX(-1)" }}
+                    />
+                    {cameraStarting && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/60">
+                        <div className="w-6 h-6 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+                        <p className="font-body text-xs text-muted-foreground tracking-wide">
+                          Starting camera…
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <p className="font-body text-xs text-muted-foreground text-center max-w-xs">
+                Stand back so your full body is visible. Front-facing photo works best.
+              </p>
+
+              <div className="flex gap-3 w-full max-w-md">
+                <button
+                  onClick={closeCamera}
+                  className="flex-1 font-body text-sm py-3 md:py-3.5 border border-border text-foreground hover:border-foreground/60 transition-all duration-200 tracking-wide"
+                  style={{ borderRadius: "2px" }}
+                >
+                  Cancel
+                </button>
+                {!cameraError && (
+                  <button
+                    onClick={capturePhoto}
+                    disabled={cameraStarting}
+                    className="flex-1 font-body text-sm py-3 md:py-3.5 bg-terracotta text-cream hover:opacity-90 disabled:opacity-50 transition-all duration-200 tracking-wide flex items-center justify-center gap-2"
+                    style={{ borderRadius: "2px" }}
+                  >
+                    <Camera size={14} /> Capture
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

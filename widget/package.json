@@ -1,0 +1,13 @@
+{
+  "name": "fitai-widget",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0",
+    "terser": "^5.31.0"
+  }
+}

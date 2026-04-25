@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FitAI Design System — Dark Editorial */
+
+@layer base {
+  :root {
+    /* Core palette */
+    --background: 40 11% 5%;
+    --foreground: 40 60% 97%;
+
+    --card: 40 9% 8%;
+    --card-foreground: 40 60% 97%;
+
+    --popover: 40 9% 8%;
+    --popover-foreground: 40 60% 97%;
+
+    /* Terracotta accent */
+    --primary: 18 64% 47%;
+    --primary-foreground: 40 60% 97%;
+
+    --secondary: 40 9% 12%;
+    --secondary-foreground: 40 60% 97%;
+
+    --muted: 40 9% 14%;
+    --muted-foreground: 40 20% 55%;
+
+    --accent: 18 64% 47%;
+    --accent-foreground: 40 60% 97%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 40 60% 97%;
+
+    --border: 40 9% 16%;
+    --input: 40 9% 16%;
+    --ring: 18 64% 47%;
+
+    --radius: 2px;
+
+    /* Custom */
+    --cream: 40 60% 97%;
+    --charcoal: 40 11% 5%;
+    --terracotta: 18 64% 47%;
+    --terracotta-dim: 18 50% 35%;
+    --surface: 40 9% 8%;
+    --surface-hover: 40 9% 12%;
+    --border-subtle: 40 9% 14%;
+    --text-muted: 40 20% 55%;
+
+    --sidebar-background: 40 11% 5%;
+    --sidebar-foreground: 40 60% 97%;
+    --sidebar-primary: 18 64% 47%;
+    --sidebar-primary-foreground: 40 60% 97%;
+    --sidebar-accent: 40 9% 12%;
+    --sidebar-accent-foreground: 40 60% 97%;
+    --sidebar-border: 40 9% 16%;
+    --sidebar-ring: 18 64% 47%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .font-body {
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .text-cream {
+    color: hsl(var(--cream));
+  }
+
+  .text-terracotta {
+    color: hsl(var(--terracotta));
+  }
+
+  .bg-surface {
+    background-color: hsl(var(--surface));
+  }
+
+  .bg-charcoal {
+    background-color: hsl(var(--charcoal));
+  }
+
+  .border-subtle {
+    border-color: hsl(var(--border-subtle));
+  }
+
+  .border-terracotta {
+    border-color: hsl(var(--terracotta));
+  }
+
+  .glow-terracotta {
+    box-shadow: 0 0 30px hsl(var(--terracotta) / 0.25), 0 0 60px hsl(var(--terracotta) / 0.1);
+  }
+}

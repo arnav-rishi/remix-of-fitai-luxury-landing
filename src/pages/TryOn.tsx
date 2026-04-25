@@ -544,20 +544,12 @@ export default function TryOn() {
 
                     <button
                       type="button"
-                      onClick={() => cameraRef.current?.click()}
+                      onClick={openCamera}
                       className="w-full font-body text-sm py-3.5 md:py-4 border border-border text-foreground hover:border-foreground/60 hover:bg-secondary/40 transition-all duration-200 tracking-wide flex items-center justify-center gap-2"
                       style={{ borderRadius: "2px" }}
                     >
                       <Camera size={16} /> Take a photo
                     </button>
-                    <input
-                      ref={cameraRef}
-                      type="file"
-                      accept="image/*"
-                      capture="user"
-                      className="hidden"
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-                    />
                   </div>
                 ) : (
                   <div className="flex flex-col gap-4 md:gap-5">

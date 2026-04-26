@@ -756,7 +756,7 @@ export default function TryOn() {
                       playsInline
                       muted
                       className="w-full h-full object-cover"
-                      style={{ transform: "scaleX(-1)" }}
+                      style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
                     />
                     {cameraStarting && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/60">

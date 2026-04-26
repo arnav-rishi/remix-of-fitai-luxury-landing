@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { ArrowLeft, Upload, ShoppingCart, RefreshCw, Sparkles, X, AlertCircle, Camera } from "lucide-react";
+import { ArrowLeft, Upload, ShoppingCart, RefreshCw, Sparkles, X, AlertCircle, Camera, SwitchCamera } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import garment1 from "@/assets/garment-1.jpg";
@@ -97,6 +97,8 @@ export default function TryOn() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [cameraStarting, setCameraStarting] = useState(false);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -110,40 +112,97 @@ export default function TryOn() {
     }
   }, []);
 
+  const startStream = useCallback(async (mode: "user" | "environment") => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error("Camera is not supported in this browser.");
+    }
+    // Stop any existing stream first
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+
+    let stream: MediaStream;
+    try {
+      // Try with exact constraint first (better on mobile to actually pick the requested camera)
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { exact: mode }, width: { ideal: 1280 }, height: { ideal: 1280 } },
+        audio: false,
+      });
+    } catch (err) {
+      const e = err as { name?: string };
+      // OverconstrainedError on desktop / single-camera devices → fallback to ideal
+      if (e?.name === "OverconstrainedError" || e?.name === "NotFoundError") {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: mode, width: { ideal: 1280 }, height: { ideal: 1280 } },
+          audio: false,
+        });
+      } else {
+        throw err;
+      }
+    }
+
+    streamRef.current = stream;
+    requestAnimationFrame(() => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play().catch(() => {});
+      }
+    });
+
+    // Detect whether device has multiple video inputs (to show the switch button)
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cams = devices.filter((d) => d.kind === "videoinput");
+      setHasMultipleCameras(cams.length > 1);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const handleCameraError = (err: unknown) => {
+    const e = err as { name?: string; message?: string };
+    let msg = "Could not access camera.";
+    if (e?.name === "NotAllowedError" || e?.name === "PermissionDeniedError") {
+      msg = "Camera permission denied. Please allow camera access in your browser settings and try again.";
+    } else if (e?.name === "NotFoundError" || e?.name === "OverconstrainedError") {
+      msg = "Requested camera is not available on this device.";
+    } else if (e?.name === "NotReadableError") {
+      msg = "Camera is already in use by another application.";
+    } else if (e?.message) {
+      msg = e.message;
+    }
+    setCameraError(msg);
+  };
+
   const openCamera = async () => {
     setCameraError(null);
     setCameraStarting(true);
     setCameraOpen(true);
     try {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("Camera is not supported in this browser.");
+      await startStream(facingMode);
+    } catch (err) {
+      handleCameraError(err);
+    } finally {
+      setCameraStarting(false);
+    }
+  };
+
+  const switchCamera = async () => {
+    const next = facingMode === "user" ? "environment" : "user";
+    setCameraError(null);
+    setCameraStarting(true);
+    try {
+      await startStream(next);
+      setFacingMode(next);
+    } catch (err) {
+      handleCameraError(err);
+      // Try to restore previous stream if switch failed
+      try {
+        await startStream(facingMode);
+      } catch {
+        /* ignore */
       }
-      // Request camera synchronously inside the click-triggered handler
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 1280 } },
-        audio: false,
-      });
-      streamRef.current = stream;
-      // Attach to video element once it mounts
-      requestAnimationFrame(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => {});
-        }
-      });
-    } catch (err: unknown) {
-      const e = err as { name?: string; message?: string };
-      let msg = "Could not access camera.";
-      if (e?.name === "NotAllowedError" || e?.name === "PermissionDeniedError") {
-        msg = "Camera permission denied. Please allow camera access in your browser settings and try again.";
-      } else if (e?.name === "NotFoundError" || e?.name === "OverconstrainedError") {
-        msg = "No camera found on this device.";
-      } else if (e?.name === "NotReadableError") {
-        msg = "Camera is already in use by another application.";
-      } else if (e?.message) {
-        msg = e.message;
-      }
-      setCameraError(msg);
     } finally {
       setCameraStarting(false);
     }
@@ -697,7 +756,7 @@ export default function TryOn() {
                       playsInline
                       muted
                       className="w-full h-full object-cover"
-                      style={{ transform: "scaleX(-1)" }}
+                      style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
                     />
                     {cameraStarting && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/60">
@@ -723,6 +782,18 @@ export default function TryOn() {
                 >
                   Cancel
                 </button>
+                {!cameraError && hasMultipleCameras && (
+                  <button
+                    onClick={switchCamera}
+                    disabled={cameraStarting}
+                    className="font-body text-sm py-3 md:py-3.5 px-4 border border-border text-foreground hover:border-foreground/60 disabled:opacity-50 transition-all duration-200 tracking-wide flex items-center justify-center gap-2"
+                    style={{ borderRadius: "2px" }}
+                    aria-label="Switch camera"
+                    title={facingMode === "user" ? "Switch to back camera" : "Switch to front camera"}
+                  >
+                    <SwitchCamera size={16} />
+                  </button>
+                )}
                 {!cameraError && (
                   <button
                     onClick={capturePhoto}

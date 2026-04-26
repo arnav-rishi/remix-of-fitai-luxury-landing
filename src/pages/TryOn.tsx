@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { ArrowLeft, Upload, ShoppingCart, RefreshCw, Sparkles, X, AlertCircle, Camera } from "lucide-react";
+import { ArrowLeft, Upload, ShoppingCart, RefreshCw, Sparkles, X, AlertCircle, Camera, SwitchCamera } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import garment1 from "@/assets/garment-1.jpg";

@@ -782,6 +782,18 @@ export default function TryOn() {
                 >
                   Cancel
                 </button>
+                {!cameraError && hasMultipleCameras && (
+                  <button
+                    onClick={switchCamera}
+                    disabled={cameraStarting}
+                    className="font-body text-sm py-3 md:py-3.5 px-4 border border-border text-foreground hover:border-foreground/60 disabled:opacity-50 transition-all duration-200 tracking-wide flex items-center justify-center gap-2"
+                    style={{ borderRadius: "2px" }}
+                    aria-label="Switch camera"
+                    title={facingMode === "user" ? "Switch to back camera" : "Switch to front camera"}
+                  >
+                    <SwitchCamera size={16} />
+                  </button>
+                )}
                 {!cameraError && (
                   <button
                     onClick={capturePhoto}

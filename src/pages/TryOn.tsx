@@ -12,6 +12,8 @@ import garmentMen1 from "@/assets/garment-men-1.jpg";
 import garmentMen2 from "@/assets/garment-men-2.jpg";
 import garmentMen3 from "@/assets/garment-men-3.jpg";
 import garmentMen4 from "@/assets/garment-men-4.jpg";
+import garmentMen5 from "@/assets/garment-men-5.jpg";
+import garmentMen6 from "@/assets/garment-men-6.jpg";
 
 const GARMENTS = [
   { id: 1, name: "Rust Gold Embroidered Kurta", price: "₹3,490", img: garment1, tag: "Bestseller", category: "tops" },
@@ -22,6 +24,8 @@ const GARMENTS = [
   { id: 6, name: "Navy Slim-Fit Cotton Shirt", price: "₹1,890", img: garmentMen2, tag: "Everyday", category: "tops" },
   { id: 7, name: "Olive Essential Crew Tee", price: "₹990", img: garmentMen3, tag: "New Arrival", category: "tops" },
   { id: 8, name: "Maroon Silk Bandhgala Jacket", price: "₹6,490", img: garmentMen4, tag: "Festive Edit", category: "tops" },
+  { id: 9, name: "Geometric Print Half-Sleeve Shirt", price: "₹1,690", img: garmentMen5, tag: "Summer Edit", category: "tops" },
+  { id: 10, name: "Black Essential Crew Tee", price: "₹890", img: garmentMen6, tag: "Bestseller", category: "tops" },
 ];
 
 const SIZES = ["XS", "S", "M", "L", "XL"];

@@ -8,12 +8,20 @@ import garment1 from "@/assets/garment-1.jpg";
 import garment2 from "@/assets/garment-2.jpg";
 import garment3 from "@/assets/garment-3.jpg";
 import garment4 from "@/assets/garment-4.jpg";
+import garmentMen1 from "@/assets/garment-men-1.jpg";
+import garmentMen2 from "@/assets/garment-men-2.jpg";
+import garmentMen3 from "@/assets/garment-men-3.jpg";
+import garmentMen4 from "@/assets/garment-men-4.jpg";
 
 const GARMENTS = [
   { id: 1, name: "Rust Gold Embroidered Kurta", price: "₹3,490", img: garment1, tag: "Bestseller", category: "tops" },
   { id: 2, name: "Ivory Anarkali Set", price: "₹5,290", img: garment2, tag: "New Arrival", category: "one-pieces" },
   { id: 3, name: "Peacock Blue Floral Kurti", price: "₹4,190", img: garment3, tag: "Festive Edit", category: "tops" },
   { id: 4, name: "Blush Pink Embroidered Frock", price: "₹5,890", img: garment4, tag: "New Arrival", category: "one-pieces" },
+  { id: 5, name: "Ivory Gold-Embroidered Men's Kurta", price: "₹2,990", img: garmentMen1, tag: "Bestseller", category: "tops" },
+  { id: 6, name: "Navy Slim-Fit Cotton Shirt", price: "₹1,890", img: garmentMen2, tag: "Everyday", category: "tops" },
+  { id: 7, name: "Olive Essential Crew Tee", price: "₹990", img: garmentMen3, tag: "New Arrival", category: "tops" },
+  { id: 8, name: "Maroon Silk Bandhgala Jacket", price: "₹6,490", img: garmentMen4, tag: "Festive Edit", category: "tops" },
 ];
 
 const SIZES = ["XS", "S", "M", "L", "XL"];
